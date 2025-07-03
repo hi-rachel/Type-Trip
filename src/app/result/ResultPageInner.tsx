@@ -507,19 +507,6 @@ const ResultPageInner = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/20"></div>
               </div>
 
-              {/* 상단 작은 아이콘 */}
-              <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl p-2 border border-white/30">
-                  <Image
-                    src={imageUrl}
-                    alt={`${characterName} 캐릭터`}
-                    width={60}
-                    height={60}
-                    className="w-full h-full object-contain rounded-xl"
-                  />
-                </div>
-              </div>
-
               {/* 메인 콘텐츠 영역 */}
               <div className="absolute bottom-0 left-0 right-0 z-20 p-6">
                 <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-2xl">
