@@ -480,7 +480,7 @@ const ResultPageInner = () => {
               </div>
 
               {/* 하단 타이틀 */}
-              <div className="absolute bottom-0 left-0 right-0 z-30 p-6 bg-white">
+              <div className="absolute bottom-4 left-0 right-0 bg-white">
                 <h2 className="text-2xl font-bold text-primary mb-1 text-center">
                   {title}
                 </h2>
