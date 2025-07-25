@@ -460,7 +460,7 @@ const ResultPageInner = () => {
         {/* 인터랙티브 카드 */}
         <div className="perspective-1000 mb-8">
           <div
-            className={`relative w-full h-[500px] transition-transform duration-700 transform-style-preserve-3d cursor-pointer ${
+            className={`relative w-full h-[500px] sm:h-[500px] md:h-[500px] transition-transform duration-700 transform-style-preserve-3d cursor-pointer ${
               isFlipped ? "rotate-y-180" : ""
             }`}
             onClick={() => setIsFlipped(!isFlipped)}
