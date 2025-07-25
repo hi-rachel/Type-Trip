@@ -5,6 +5,7 @@ import { travelResults } from "@/constants/results";
 import Image from "next/image";
 import { useState } from "react";
 import html2canvas from "html2canvas";
+import TravelChatbot from "@/components/TravelChatbot";
 
 type TravelResult = {
   id: string;
@@ -74,15 +75,15 @@ const ResultPageInner = () => {
               style="width: 100%; height: 100%; object-fit: cover;"
               crossOrigin="anonymous"
             />
-            <!-- 어두운 오버레이 -->
-            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.2);"></div>
-            <!-- 그라데이션 오버레이 -->
-            <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.8) 100%);"></div>
+            <!-- 어두운 오버레이 - 더 밝게 수정 -->
+            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.35);"></div>
+            <!-- 그라데이션 오버레이 - 더 밝게 수정 -->
+            <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.4) 100%);"></div>
           </div>
 
           <!-- 메인 콘텐츠 영역 -->
           <div style="position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; padding: 24px;">
-            <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(20px); border-radius: 24px; padding: 32px 24px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 32px rgba(0,0,0,0.);">
+            <div style="background: rgba(255,255,255,0.3); backdrop-filter: blur(20px); border-radius: 24px; padding: 32px 24px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
               <!-- 타이틀 -->
               <div style="text-align: center; margin-bottom: 24px;">
                 <h3 style="font-size: 28px; font-weight: 800; color: #F6C851; margin: 0 0 8px 0; letter-spacing: -1px;">
@@ -100,7 +101,7 @@ const ResultPageInner = () => {
 
               <!-- 설명 -->
               <div style="margin-bottom: 24px;">
-                <p style="color: rgba(255,255,255,0.9); font-size: 14px; line-height: 1.6; margin: 0; text-align: center; font-weight: 500;">
+                <p style="color: rgba(255,255,255,0.95); font-size: 14px; line-height: 1.6; margin: 0; text-align: center; font-weight: 500;">
                   ${description}
                 </p>
               </div>
@@ -110,11 +111,11 @@ const ResultPageInner = () => {
                 <h4 style="font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); margin: 0 0 12px 0; text-align: center;   ">
                   추천 여행지
                 </h4>
-                <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; rgba(255,255,255,0.3);">
                   ${recommendedPlaces
                     .map(
                       (place: string) =>
-                        `<span style="color: #fff; font-size: 12px;">${place}</span>`
+                        `<span style="color: #fff; font-size: 12px;font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.5); display: inline-block;">✨ ${place}</span>`
                     )
                     .join("")}
                 </div>
@@ -501,21 +502,23 @@ const ResultPageInner = () => {
                   height={660}
                   className="w-full h-full object-cover"
                 />
-                {/* 어두운 오버레이 */}
-                <div className="absolute inset-0 bg-black/40"></div>
-                {/* 그라데이션 오버레이 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/20"></div>
+                {/* 어두운 오버레이 - 더 밝게 수정 */}
+                <div className="absolute inset-0 bg-black/20"></div>
+                {/* 그라데이션 오버레이 - 더 밝게 수정 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/10"></div>
               </div>
 
               {/* 메인 콘텐츠 영역 */}
               <div className="absolute bottom-0 left-0 right-0 z-20 p-6">
-                <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-2xl">
+                <div className="bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl">
                   {/* 타이틀 */}
                   <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-white mb-2">
+                    <h3 className="text-2xl font-bold text-[#F6C851] mb-2">
                       {title}
                     </h3>
-                    <p className="text-white/80 font-medium">{characterName}</p>
+                    <p className="text-white/90 font-medium text-[#F6C851]">
+                      {characterName}
+                    </p>
                   </div>
 
                   {/* 슬로건 */}
@@ -527,23 +530,23 @@ const ResultPageInner = () => {
 
                   {/* 설명 */}
                   <div className="mb-6">
-                    <p className="text-white/90 leading-relaxed text-sm font-medium text-center">
+                    <p className="text-white/95 leading-relaxed text-sm font-medium text-center">
                       {description}
                     </p>
                   </div>
 
                   {/* 추천 여행지 */}
                   <div className="mb-6">
-                    <h4 className="text-sm font-bold text-white/90 mb-3 text-center">
+                    <h4 className="text-sm font-bold text-white/95 mb-3 text-center">
                       추천 여행지
                     </h4>
                     <div className="flex flex-wrap justify-center gap-2">
                       {recommendedPlaces.map((place: string, index: number) => (
                         <span
                           key={index}
-                          className="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold text-white border border-white/30"
+                          className="text-xs font-semibold text-white"
                         >
-                          {place}
+                          ✨ {place}
                         </span>
                       ))}
                     </div>
@@ -803,6 +806,14 @@ const ResultPageInner = () => {
           어떤 여행이든, 당신만의 특별한 이야기가 될거예요 ✨
         </p>
       </div>
+
+      {/* 여행 챗봇 */}
+      <TravelChatbot
+        recommendedPlaces={recommendedPlaces}
+        characterName={characterName}
+        title={title}
+        description={description}
+      />
     </div>
   );
 };
