@@ -494,7 +494,7 @@ const ResultPageInner = () => {
             {/* 뒷면 - 상세 정보 */}
             <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl shadow-2xl overflow-hidden">
               {/* 배경 이미지 */}
-              <div className="absolute inset-0">
+              <div className="absolute inset-0 w-full h-full">
                 <Image
                   src={imageUrl}
                   alt={`${characterName} 캐릭터`}
@@ -502,10 +502,8 @@ const ResultPageInner = () => {
                   height={660}
                   className="w-full h-full object-cover"
                 />
-                {/* 어두운 오버레이 - 더 밝게 수정 */}
-                <div className="absolute inset-0 bg-black/20"></div>
-                {/* 그라데이션 오버레이 - 더 밝게 수정 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/10"></div>
+                <div className="absolute inset-0 w-full h-full bg-black/20"></div>
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-black/60 via-black/10 to-black/10"></div>
               </div>
 
               {/* 메인 콘텐츠 영역 */}
