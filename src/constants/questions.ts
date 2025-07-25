@@ -84,7 +84,7 @@ export const questions: Question[] = [
     options: [
       { label: "나도 그럴 때가 있어서 이해함", value: "free" },
       { label: "계획 무너져도 그게 또 여행이지", value: "healer" },
-      { label: "즉흥으로 더 재밌는 거 하자!", value: "adventure" },
+      { label: "새로운 계획을 세워보자", value: "explorer" },
       { label: "혼자서도 잘 즐길 수 있음", value: "romantic" },
     ],
   },
