@@ -340,17 +340,10 @@ const TravelChatbot = ({
         " | "
       )}\n[하이라이트] ${d.highlights.join(", ")}\n[여행 팁] ${d.tips.join(
         ", "
-      )}\n[예산] ${d.budget} (호텔, 비행기값 포함)\n[언어] ${
-        d.language
-      }\n[통화] ${d.currency}`;
+      )}\n[예산] ${d.budget}\n[언어] ${d.language}\n[통화] ${d.currency}`;
     }
 
     const geminiMessages = [
-      {
-        role: "system",
-        content:
-          "너는 여행 전문 챗봇이야. 예산 정보를 안내할 때는 반드시 호텔 숙박비와 비행기(항공권) 비용도 포함해서 알려줘.",
-      },
       ...prevMessages,
       {
         role: "user",
