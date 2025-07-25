@@ -1,11 +1,21 @@
 import type { Question } from "../constants/questions";
 
 type Props = {
-  question: Question;
+  question: Question | undefined;
   onSelect: (value: string) => void;
 };
 
 const QuestionCard = ({ question, onSelect }: Props) => {
+  if (!question) {
+    return (
+      <div className="animate-fade-in w-full max-w-md mx-auto bg-white/80 rounded-2xl shadow-lg p-8 text-center">
+        <div className="text-xl font-bold mb-8 text-gray-800">
+          질문을 불러오는 중...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="animate-fade-in w-full max-w-md mx-auto bg-white/80 rounded-2xl shadow-lg p-8 text-center">
       <h2 className="text-xl font-bold mb-8 text-gray-800">{question.text}</h2>
