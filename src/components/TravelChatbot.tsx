@@ -325,14 +325,39 @@ const TravelChatbot = ({
       role: m.type === "user" ? "user" : "assistant",
       content: m.content,
     }));
+
+    // 선택한 여행지 정보 포맷팅
+    let destinationInfoText = "";
+    if (selectedDestination && destinationData[selectedDestination]) {
+      const d = destinationData[selectedDestination];
+      destinationInfoText = `\n[선택한 여행지] ${d.name}\n[국가] ${
+        d.country
+      }\n[지역] ${d.region}\n[요약] ${d.summary}\n[날씨] ${
+        d.weather
+      }\n[최적 여행 시기] ${d.bestMonths.join(
+        ", "
+      )}\n[추천 일정] ${d.recommendedPlan.join(
+        " | "
+      )}\n[하이라이트] ${d.highlights.join(", ")}\n[여행 팁] ${d.tips.join(
+        ", "
+      )}\n[예산] ${d.budget} (호텔, 비행기값 포함)\n[언어] ${
+        d.language
+      }\n[통화] ${d.currency}`;
+    }
+
     const geminiMessages = [
-      { role: "system", content: "너는 여행 전문 챗봇이야." },
       {
-        role: "user",
-        content: `[여행 성향] ${title}, ${description}\n[캐릭터 이름] ${characterName}`,
+        role: "system",
+        content:
+          "너는 여행 전문 챗봇이야. 예산 정보를 안내할 때는 반드시 호텔 숙박비와 비행기(항공권) 비용도 포함해서 알려줘.",
       },
       ...prevMessages,
-      { role: "user", content: message },
+      {
+        role: "user",
+        content: `${
+          destinationInfoText ? destinationInfoText + "\n" : ""
+        }${message}`,
+      },
     ] as { role: "user" | "assistant" | "system"; content: string }[];
 
     // Gemini API 호출
