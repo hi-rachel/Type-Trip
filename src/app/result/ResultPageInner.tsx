@@ -469,7 +469,6 @@ const ResultPageInner = () => {
             <div className="absolute inset-0 w-full h-full backface-hidden rounded-3xl shadow-2xl overflow-hidden bg-white">
               {/* 이미지 영역 */}
               <div className="relative h-[400px] overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10"></div>
                 <Image
                   src={imageUrl}
                   alt={`${characterName} 캐릭터`}
