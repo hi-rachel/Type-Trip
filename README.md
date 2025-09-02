@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌍 Type Trip
 
-## Getting Started
+> **여행 성향 진단 및 맞춤형 여행지 추천 서비스**  
+> AI 기반 개인화 여행 컨설팅과 인터랙티브 카드 결과 제공
 
-First, run the development server:
+## 🎯 프로젝트 개요
+
+Type Trip은 사용자의 여행 성향을 진단하고 개인화된 여행지를 추천해주는 서비스입니다. 심리 테스트 기반의 여행 성향 분석과 AI 챗봇을 통한 실시간 여행 상담 서비스를 제공합니다.
+
+![Image](https://github.com/user-attachments/assets/aaba4201-a20f-45f5-a99b-a68819aa1ed5)
+
+## ✨ 핵심 기능
+
+### 🧠 여행 성향 진단
+
+- **선호도 기반 분류**: 10개 질문을 통한 10가지 여행 성향 분류
+- **빈도 분석 매칭**: 답변 빈도 계산 및 최다 선택 타입 결과 도출
+- **개인화된 캐릭터**: 각 성향별 고유 캐릭터 및 슬로건 제공
+
+### 🎨 인터랙티브 결과 카드
+
+- **3D 플립 애니메이션**: CSS Transform을 활용한 부드러운 카드 전환
+- **고해상도 이미지 다운로드**: HTML2Canvas를 이용한 2배율 이미지 생성
+- **SNS 공유**: Native Web Share API 및 클립보드 복사 Fallback 지원
+
+### 🤖 AI 여행 컨설턴트
+
+- **Google Gemini 1.5 Flash**: LLM 모델 활용한 실시간 상담
+- **컨텍스트 인식**: 사용자 여행 성향 기반 개인화 응답
+- **Rate Limiting**: 분당/일일 요청 제한으로 서비스 안정성 확보
+- **Markdown 렌더링**: 구조화된 응답 표시
+
+## 🚀 시작하기
+
+### 환경 요구사항
+
+- **Node.js**: >= 18.0.0
+- **Package Manager**: pnpm (권장)
+
+### 설치 및 실행
+
+1. **저장소 클론**
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd Type-Trip
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **의존성 설치**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# pnpm 사용 (권장)
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **환경 변수 설정**
 
-## Learn More
+```bash
+# .env.local 파일 생성
+GOOGLE_API_KEY=your_gemini_api_key_here
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. **개발 서버 실행**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# 개발 모드
+pnpm dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. **브라우저에서 확인**
 
-## Deploy on Vercel
+```
+http://localhost:3000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 배포 준비
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+# 프로덕션 빌드
+pnpm build
+
+# 프로덕션 서버 실행
+pnpm start
+
+# 린팅 및 타입 체크
+pnpm lint
+```
+
+## 📱 사용 방법
+
+### 1. 여행 성향 진단
+
+1. 메인 페이지에서 테스트 시작
+2. 10개 질문에 직관적으로 답변
+3. 각 질문은 개인의 여행 스타일을 분석
+
+### 2. 결과 확인
+
+1. 3D 인터랙티브 카드로 결과 제공
+2. 카드 터치로 앞면/뒷면 전환
+3. 개인 성향, 추천 여행지, 캐릭터 정보 확인
+
+### 3. AI 여행 상담
+
+1. 결과 페이지에서 챗봇 아이콘 클릭
+2. 추천 여행지 선택 후 자유 대화
+3. 개인화된 여행 조언 및 정보 제공
+
+### 4. 결과 공유
+
+1. 앞면/뒷면 카드 개별 다운로드
+2. SNS 네이티브 공유 기능
+3. 클립보드 복사 지원
