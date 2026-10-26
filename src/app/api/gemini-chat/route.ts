@@ -14,23 +14,76 @@ interface ChatRequest {
   };
 }
 
+interface GeminiPart {
+  text?: string;
+  thought?: boolean;
+}
+
+interface GeminiResponse {
+  candidates?: {
+    content?: {
+      parts?: GeminiPart[];
+    };
+  }[];
+  error?: {
+    code?: number;
+    message?: string;
+    status?: string;
+  };
+}
+
+// 무료 등급 한도가 큰 순서로 시도 (모델마다 한도가 따로 적용됨)
+// - gemini-3.5-flash-lite: 분당 15회 / 일일 500회
+// - gemini-3.1-flash-lite: 분당 15회 / 일일 500회
+// - gemini-flash-latest:   분당 5회 / 일일 20회
+const MODELS: readonly string[] = [
+  "gemini-3.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-flash-latest",
+];
+const MAX_ATTEMPTS_PER_MODEL = 2; // 503(일시 과부하)일 때만 재시도
+const RETRY_DELAY_MS = 800;
+
 // 분당/일일 요청 제한을 위한 Map
 const minuteMap = new Map<string, number>(); // 분당 요청 카운트
 const dayMap = new Map<string, number>(); // 일일 요청 카운트
 const MINUTE_LIMIT = 15; // 분당 15회
-const DAY_LIMIT = 1500; // 일일 1,500회
+const DAY_LIMIT = 1000; // 일일 1,000회
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+const parseGeminiJson = async (res: Response): Promise<GeminiResponse> => {
+  try {
+    return (await res.json()) as GeminiResponse;
+  } catch {
+    return {};
+  }
+};
+
+const isQuotaError = (res: Response, data: GeminiResponse): boolean => {
+  if (res.status === 429) return true;
+  const message = data.error?.message ?? "";
+  return /quota|rate limit/i.test(message);
+};
 
 export async function POST(req: NextRequest) {
   const now = Date.now();
-  const minuteKey = Math.floor(now / 60000); // 현재 분
-  const dayKey = Math.floor(now / 86400000); // 현재 일
+  const minuteKey = Math.floor(now / 60000).toString(); // 현재 분
+  const dayKey = Math.floor(now / 86400000).toString(); // 현재 일
+
+  // 지난 분/일 카운트는 정리해 메모리가 계속 늘지 않도록 함
+  minuteMap.forEach((_count, key) => {
+    if (key !== minuteKey) minuteMap.delete(key);
+  });
+  dayMap.forEach((_count, key) => {
+    if (key !== dayKey) dayMap.delete(key);
+  });
 
   // 분당 전체 요청 카운트
-  minuteMap.set(
-    minuteKey.toString(),
-    (minuteMap.get(minuteKey.toString()) || 0) + 1
-  );
-  if (minuteMap.get(minuteKey.toString())! > MINUTE_LIMIT) {
+  const minuteCount = (minuteMap.get(minuteKey) ?? 0) + 1;
+  minuteMap.set(minuteKey, minuteCount);
+  if (minuteCount > MINUTE_LIMIT) {
     return NextResponse.json(
       {
         error: "요청이 많아 잠시 후 다시 시도해 주세요. (분당 15회 제한)",
@@ -40,18 +93,35 @@ export async function POST(req: NextRequest) {
   }
 
   // 일일 전체 요청 카운트
-  dayMap.set(dayKey.toString(), (dayMap.get(dayKey.toString()) || 0) + 1);
-  if (dayMap.get(dayKey.toString())! > DAY_LIMIT) {
+  const dayCount = (dayMap.get(dayKey) ?? 0) + 1;
+  dayMap.set(dayKey, dayCount);
+  if (dayCount > DAY_LIMIT) {
     return NextResponse.json(
       {
         error:
-          "오늘의 무료 사용량(1,500회)이 모두 소진되었습니다. 내일 다시 이용해 주세요.",
+          "오늘의 무료 사용량이 모두 소진되었습니다. 내일 다시 이용해 주세요.",
       },
       { status: 429 }
     );
   }
 
-  const { messages, userProfile } = (await req.json()) as ChatRequest;
+  let payload: ChatRequest;
+  try {
+    payload = (await req.json()) as ChatRequest;
+  } catch {
+    return NextResponse.json(
+      { error: "잘못된 요청 형식입니다." },
+      { status: 400 }
+    );
+  }
+
+  const { messages, userProfile } = payload;
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return NextResponse.json(
+      { error: "메시지가 비어 있습니다." },
+      { status: 400 }
+    );
+  }
 
   const apiKey = process.env.GOOGLE_API_KEY;
   if (!apiKey) {
@@ -85,50 +155,78 @@ export async function POST(req: NextRequest) {
     ),
   ].join("\n");
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
   };
 
-  const geminiRes = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  const callGemini = (model: string): Promise<Response> =>
+    fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }
+    );
 
-  if (!geminiRes.ok) {
-    const data = await geminiRes.json();
+  let lastStatus = 500;
+  let lastData: GeminiResponse = {};
+  let allQuotaErrors = true;
 
-    // Gemini에서 토큰 한도 초과 에러 감지
-    if (
-      data.error &&
-      data.error.message &&
-      (data.error.message.includes("quota") ||
-        data.error.message.includes("Quota") ||
-        data.error.message.includes("rate limit") ||
-        data.error.message.includes("Rate limit"))
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Gemini 무료 토큰 한도가 모두 소진되었습니다. 내일 다시 이용해 주세요.",
-        },
-        { status: 429 }
+  for (const model of MODELS) {
+    for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_MODEL; attempt++) {
+      let res: Response;
+      try {
+        res = await callGemini(model);
+      } catch (networkError) {
+        console.error(`[gemini-chat] ${model} 네트워크 오류:`, networkError);
+        allQuotaErrors = false;
+        break;
+      }
+
+      const data = await parseGeminiJson(res);
+
+      if (res.ok) {
+        const answer =
+          data.candidates?.[0]?.content?.parts
+            ?.filter((part) => !part.thought && typeof part.text === "string")
+            .map((part) => part.text)
+            .join("")
+            .trim() || "답변을 가져오지 못했습니다.";
+        return NextResponse.json({ answer });
+      }
+
+      lastStatus = res.status;
+      lastData = data;
+      console.error(
+        `[gemini-chat] ${model} 실패 (${res.status}):`,
+        data.error?.message ?? "응답 본문 없음"
       );
-    }
 
+      if (!isQuotaError(res, data)) allQuotaErrors = false;
+
+      // 503(일시 과부하)만 같은 모델로 재시도, 그 외 오류는 다음 모델로 전환
+      if (res.status !== 503) break;
+      await sleep(RETRY_DELAY_MS);
+    }
+  }
+
+  // 모든 모델이 한도 초과로 실패한 경우
+  if (allQuotaErrors) {
     return NextResponse.json(
-      { error: "AI 응답 생성에 실패했습니다.",
-        detail: data.error?.message,
+      {
+        error:
+          "Gemini 무료 토큰 한도가 모두 소진되었습니다. 내일 다시 이용해 주세요.",
       },
-      { status: 500 }
+      { status: 429 }
     );
   }
 
-  const data = await geminiRes.json();
-  const answer =
-    data.candidates?.[0]?.content?.parts?.[0]?.text ||
-    "답변을 가져오지 못했습니다.";
-
-  return NextResponse.json({ answer });
+  return NextResponse.json(
+    {
+      error: "AI 응답 생성에 실패했습니다.",
+      detail: lastData.error?.message,
+    },
+    { status: lastStatus >= 500 ? lastStatus : 500 }
+  );
 }
