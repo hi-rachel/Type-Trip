@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     ),
   ].join("\n");
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
   const body = {
     contents: [{ parts: [{ text: prompt }] }],
   };
@@ -118,7 +118,9 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: "AI 응답 생성에 실패했습니다." },
+      { error: "AI 응답 생성에 실패했습니다.",
+        detail: data.error?.message,
+      },
       { status: 500 }
     );
   }
